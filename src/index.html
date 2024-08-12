@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <form class="login-form js-form-container">
+      <label>
+        <input
+          class="input-text"
+          type="text"
+          name="search"
+          placeholder="Введіть тему для картинок"
+          autocomplete="off"
+        />
+      </label>
+
+      <button class="form-btn" type="submit">Search</button>
+    </form>
+
+    <ul class="card-container"></ul>
+    <div class="loader-box"><span class="loader js-loader"></span></div>
+    <div class="btn-container">
+      <button
+        type="button"
+        class="button load-more-btn"
+        data-action="load-more"
+      >
+        <span
+          class="spinner-border spinner-border-sm spinner is-hidden"
+          role="status"
+          aria-hidden="true"
+        ></span>
+
+        <span class="label">Load more</span>
+      </button>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+    <!-- <script type="module" src="./js/pixabay-api.js"></script> -->
+  </body>
+</html>
