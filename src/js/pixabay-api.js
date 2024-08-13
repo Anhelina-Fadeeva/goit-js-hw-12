@@ -1,25 +1,36 @@
-'use strict';
 import axios from 'axios';
 
-axios.defaults.baseURL = 'https://pixabay.com/api';
+import iziToast from 'izitoast';
 
-const API_KEY = '45109890-d15cee52eedc615dd4ac8bedf';
+import 'izitoast/dist/css/iziToast.min.css';
 
-async function searchImagesPixaby({ q, page, per_page }) {
+const loader = document.querySelector('.loader');
+
+const API_KEY = '45157034-b6e4e263cfc131778ce7a37cc';
+const URL = 'https://pixabay.com/api/';
+
+export async function searchImages(query, page) {
   const params = new URLSearchParams({
     key: API_KEY,
-    q: q,
+    q: query,
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
+    per_page: 15,
     page: page,
-    per_page: per_page,
   });
 
-  return await axios
-    .get('?', { params })
-    .then(({ data }) => data)
-    .catch(err => console.log(err));
+  try {
+    const response = await axios.get(`${URL}?${params}`);
+    return response.data;
+  } catch (error) {
+    iziToast.error({
+      maxWidth: '370px',
+      position: 'topRight',
+      messageColor: 'white',
+      backgroundColor: 'red',
+      message: `${error}`,
+    });
+    loader.classList.add('visually-hidden');
+  }
 }
-
-export { searchImagesPixaby };

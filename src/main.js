@@ -1,129 +1,105 @@
 'use strict';
+import { searchImages } from './js/pixabay-api';
+
+import { renderImages, onFetchError } from './js/render-functions';
+
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-import { searchImagesPixaby } from './js/pixabay-api.js';
-import {
-  renderSearcCard,
-  showLoader,
-  hideLoader,
-} from './js/render-functions.js';
-import refs from './js/refs.js';
-import ButtonService from './js/loadMoreBtn';
+import axios from 'axios';
 
-const loadMoreBtn = new ButtonService(refs.loadMoreBtn, 'is-hidden');
+const gallery = document.querySelector('.gallery');
 
-loadMoreBtn.hide();
+const form = document.querySelector('.form');
 
-const params = {
-  q: '',
-  page: 1,
-  per_page: 15,
-  maxPage: 0,
-};
+const input = document.querySelector('.input');
 
-refs.searchForm.addEventListener('submit', hendleSearch);
+const loader = document.querySelector('.loader');
 
-async function hendleSearch(event) {
+const loadMoreBtn = document.querySelector('.btn');
+
+let inputValue;
+let page = 1;
+let limit = 15;
+let totalPages = 0;
+
+form.addEventListener('submit', handleSubmit);
+loadMoreBtn.addEventListener('click', handleClick);
+
+function handleSubmit(event) {
   event.preventDefault();
-  refs.cardBox.innerHTML = '';
-  showLoader();
-  const form = event.currentTarget;
-  params.q = form.elements.search.value.toLowerCase().trim();
+  gallery.innerHTML = '';
+  loadMoreBtn.classList.add('visually-hidden');
+  loader.classList.remove('visually-hidden');
 
-  loadMoreBtn.show();
-  loadMoreBtn.disable();
-
-  params.page = 1;
-
-  try {
-    showLoader();
-    const { total, hits } = await searchImagesPixaby(params);
-    params.maxPage = Math.ceil(total / params.per_page);
-
-    if (params.maxPage > 1) {
-      loadMoreBtn.enable();
-      refs.loadMoreBtn.addEventListener('click', handleLoadMore);
-    } else {
-      loadMoreBtn.hide();
-    }
-    if (!hits.length) {
-      loadMoreBtn.disable();
-      iziToast.error({
-        message: `Sorry, there are no images matching<br>your search query. Please try again!`,
-        position: 'topRight',
-        messageColor: '#ffffff',
-        backgroundColor: '#EF4040',
-      });
-      return;
-    }
-
-    if (!params.q) {
-      loadMoreBtn.hide();
-      iziToast.error({
-        message: `Please enter the data in the input field`,
-        position: 'topRight',
-        messageColor: '#ffffff',
-        backgroundColor: '#EF4040',
-      });
-      return;
-    }
-
-    renderSearcCard(hits);
-  } catch (err) {
+  inputValue = input.value.trim();
+  if (inputValue === '') {
+    loader.classList.add('visually-hidden');
     iziToast.error({
-      message: `${err.message}`,
+      maxWidth: '370px',
       position: 'topRight',
-      messageColor: '#ffffff',
-      backgroundColor: '#EF4040',
+      messageColor: 'white',
+      backgroundColor: 'red',
+      message: 'This field can not be empty! Please, write your request!',
     });
-  } finally {
-    hideLoader();
-    if (params.page === params.maxPage) {
-      loadMoreBtn.hide();
-      refs.loadMoreBtn.removeEventListener('click', handleLoadMore);
-    } else {
-      loadMoreBtn.enable();
-    }
-    form.reset();
+    return;
   }
+
+  page = 1;
+
+  searchImages(inputValue, page)
+    .then(images => {
+      totalPages = Math.ceil(images.totalHits / limit);
+      loader.classList.add('visually-hidden');
+      if (images.hits.length === 0) {
+        iziToast.error({
+          maxWidth: '370px',
+          position: 'topRight',
+          messageColor: 'white',
+          backgroundColor: 'red',
+          message:
+            'Sorry, there are no images matching your search query. Please try again!',
+        });
+      } else {
+        loader.classList.add('visually-hidden');
+        renderImages(images);
+        if (page < totalPages) {
+          loadMoreBtn.classList.remove('visually-hidden');
+        }
+      }
+    })
+    .catch(onFetchError);
+
+  form.reset();
 }
 
-async function handleLoadMore() {
-  loadMoreBtn.disable();
-  params.page += 1;
+async function handleClick(event) {
+  page += 1;
+  loader.classList.remove('visually-hidden');
+  loadMoreBtn.classList.add('visually-hidden');
+  const newPage = await searchImages(inputValue, page);
 
-  try {
-    showLoader();
-    const { hits } = await searchImagesPixaby(params);
-    renderSearcCard(hits);
-    let elem = document.querySelector('.scrol');
-    let rect = elem.getBoundingClientRect();
+  renderImages(newPage);
 
-    window.scrollBy({
-      top: rect.height * 2,
-      left: rect.width,
-      behavior: 'smooth',
-    });
-  } catch (err) {
-    iziToast.error({
-      message: `${err.message}`,
+  const firstCard = document.querySelector('.gallery li');
+  const cardHeight = firstCard.getBoundingClientRect().height;
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
+  if (page < totalPages) {
+    loadMoreBtn.classList.remove('visually-hidden');
+    loader.classList.add('visually-hidden');
+  }
+
+  if (page >= totalPages) {
+    loadMoreBtn.classList.add('visually-hidden');
+    loader.classList.add('visually-hidden');
+    return iziToast.error({
       position: 'topRight',
-      messageColor: '#ffffff',
-      backgroundColor: '#EF4040',
+      messageColor: 'black',
+      backgroundColor: 'blue',
+      message: "We're sorry, but you've reached the end of search results.",
     });
-  } finally {
-    hideLoader();
-    if (params.page === params.maxPage) {
-      iziToast.success({
-        message: "We're sorry, but you've reached the end of search results",
-        position: 'topRight',
-      });
-      loadMoreBtn.hide();
-
-      refs.loadMoreBtn.removeEventListener('click', handleLoadMore);
-    } else {
-      loadMoreBtn.enable();
-    }
   }
 }

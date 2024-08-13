@@ -2,8 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gallery</title>
+
+    <title>Homework 12</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,39 +15,19 @@
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
-    <form class="login-form js-form-container">
-      <label>
-        <input
-          class="input-text"
-          type="text"
-          name="search"
-          placeholder="Введіть тему для картинок"
-          autocomplete="off"
-        />
-      </label>
+    <div class="container">
+      <form class="form" autocomplete="off">
+        <label>
+          <input class="input" type="text" placeholder="Search images..." />
+        </label>
+        <button class="button" type="submit">Search</button>
+      </form>
+      <div class="loader visually-hidden"></div>
+      <ul class="gallery"></ul>
 
-      <button class="form-btn" type="submit">Search</button>
-    </form>
-
-    <ul class="card-container"></ul>
-    <div class="loader-box"><span class="loader js-loader"></span></div>
-    <div class="btn-container">
-      <button
-        type="button"
-        class="button load-more-btn"
-        data-action="load-more"
-      >
-        <span
-          class="spinner-border spinner-border-sm spinner is-hidden"
-          role="status"
-          aria-hidden="true"
-        ></span>
-
-        <span class="label">Load more</span>
-      </button>
+      <button type="button" class="btn visually-hidden">Load more</button>
     </div>
 
     <script type="module" src="./main.js"></script>
-    <!-- <script type="module" src="./js/pixabay-api.js"></script> -->
   </body>
 </html>

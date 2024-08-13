@@ -1,52 +1,50 @@
-'use strict';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import refs from './refs';
 
-refs.cardBox.addEventListener('click', event => event.preventDefault());
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
-function showLoader() {
-  refs.loader.style.display = 'inline-block';
-}
+const gallery = document.querySelector('.gallery');
 
-function hideLoader() {
-  refs.loader.style.display = 'none';
-}
+const loader = document.querySelector('.loader');
 
-function renderSearcCard(data) {
-  const createCardCode = data
+export function renderImages(images) {
+  let img = images.hits
     .map(
-      ({
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      }) => {
-        return `<li class="list-group-item scrol"><div class="search-card">
-   <div class="card-img-box">
-     <a clas="card-link" href="${largeImageURL}"><img class="card-img" src="${webformatURL}" alt="${tags}"></a>
-   </div>
-   <div class="card-box-text">
-     <p class="card-text">Likes<br><span>${likes}</span></p>
-     <p class="card-text">Views<br><span>${views}</span></p>
-     <p class="card-text">Comments<br><span>${comments}</span></p>
-     <p class="card-text">Downloads<br><span>${downloads}</span></p>
-   </div>
-</div></li>`;
-      }
+      image =>
+        `<li>
+        <a class="gallery-link" href=${image.largeImageURL}>
+          <img src="${image.webformatURL}" alt="${image.tags}" width=360 height=200>
+          <div class="gallery-text">
+            <p><span>Likes</span>${image.likes}</p>
+            <p><span>Views</span>${image.views}</p>
+            <p><span>Comments</span>${image.comments}</p>
+            <p><span>Downloads</span>${image.downloads}</p>
+          </div>
+        </a>
+      </li>`
     )
     .join('');
 
-  refs.cardBox.insertAdjacentHTML('beforeend', createCardCode);
-  const gallery = new SimpleLightbox('.card-container a', {
-    captionsData: 'alt',
+  gallery.insertAdjacentHTML('beforeend', img);
+
+  let lightbox = new SimpleLightbox('.gallery a', {
     captionDelay: 250,
-    overlayOpacity: 0.9,
+    captionPosition: 'bottom',
+    captionsData: 'alt',
   });
-  gallery.refresh();
+
+  lightbox.refresh();
 }
 
-export { renderSearcCard, showLoader, hideLoader };
+export function onFetchError(error) {
+  gallery.innerHTML = '';
+  iziToast.error({
+    maxWidth: '370px',
+    position: 'topRight',
+    messageColor: 'white',
+    backgroundColor: 'red',
+    message: `${error}`,
+  });
+  loader.classList.add('visually-hidden');
+}
