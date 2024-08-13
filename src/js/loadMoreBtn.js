@@ -1,32 +1,14 @@
-export default class ButtonService {
-  constructor(buttonEL, hiddenClass) {
-    this.buttonEL = buttonEL;
-    this.hiddenClass = hiddenClass;
-  }
+'use strict';
+import ButtonService from './ButtonService';
+import { fetchData } from './fetchDataModule'; // Переконайтеся, що ця функція імпортована або визначена
 
-  hide() {
-    this.buttonEL.classList.add(this.hiddenClass);
-  }
-
-  show() {
-    this.buttonEL.classList.remove(this.hiddenClass);
-  }
-
-  disable() {
-    this.buttonEL.disabled = true;
-  }
-
-  enable() {
-    this.buttonEL.disabled = false;
-  }
-}
-
-// Приклад використання
 const loadMoreButton = document.querySelector('.load-more-btn');
+const loader = document.querySelector('.loader'); // Вкажіть правильний селектор для вашого лоадера
 const buttonService = new ButtonService(loadMoreButton, 'hidden'); // 'hidden' - це клас, який приховує кнопку
 
 function performSearch(query) {
-  if (query.trim() === "") return; // Не запускаємо запит, якщо поле порожнє
+  // Не запускаємо запит, якщо поле порожнє або складається лише з пробілів
+  if (query.trim() === "") return;
 
   // Ховаємо кнопку "Завантажити ще" та робимо її недоступною
   buttonService.hide();
